@@ -17,7 +17,9 @@ const int servoPin = 10;
 //Distance limit (cm)
 const int distanceLimit = 30;
 const int clearanceDistance = 40;
-const unsigned long reverseduration = 25600UL;
+const unsigned long reverseduration = 4000; // Thời gian lùi lại (ms)
+
+int pos = 0;    // variable to store the servo position
 
 //Khai báo đối tượng servo
 Servo servo;
@@ -94,7 +96,11 @@ long scanAt(int angle)
   return distance;
 }
 
+
+
 void setup() {
+
+  Serial.begin(9600);
   //Khai báo chân
   pinMode(ENA, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -104,6 +110,8 @@ void setup() {
   pinMode(IN4, OUTPUT);
   pinMode(Trig, OUTPUT);
   pinMode(Echo, INPUT);
+
+
   servo.attach(servoPin);
 
 
@@ -114,40 +122,55 @@ void setup() {
   analogWrite(ENB, 255);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, LOW);
+
+  delay(100);
 }
 
 void loop() 
 {
   //Servo default position
-  servo.write(9);
+  // Serial.println("Servo default position");
+  servo.write(90);
   delay(100);
 
   const int frontDistance = getDistance();
+  Serial.print("Front distance: ");
+  Serial.println(frontDistance);
   if (frontDistance < distanceLimit)
   {
+    Serial.println("Stop");
     stop();
     delay(100);
     long leftDistance = scanAt(45);
+    Serial.print("Left distance: ");
+    Serial.println(leftDistance);
     long rightDistance = scanAt(135);
+    Serial.print("Right distance: ");
+    Serial.println(rightDistance);
 
     if (leftDistance > rightDistance && leftDistance > clearanceDistance)
     {
       turnleft(225, 225);
+      Serial.println("Turning left");
       delay(400);
     }
     else if (rightDistance > leftDistance && rightDistance > clearanceDistance)
     {
       turnright(225, 225);
+      Serial.println("Turning right");
       delay(400);
     }
     else
     {
       backward(225, 225);
-      delay(reverseduration);
+      Serial.println("Moving backward");
+      delay(400);
+      delay(4000);
     }
   }
   else
   {
+    Serial.println("Moving forward");
     forward(225, 225);
   }
 }
