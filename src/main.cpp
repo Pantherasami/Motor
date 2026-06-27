@@ -17,7 +17,7 @@ const int servoPin = 10;
 //Distance limit (cm)
 const int distanceLimit = 30;
 const int clearanceDistance = 40;
-const int reverseduration = 25600UL;
+const unsigned long reverseduration = 25600UL;
 
 //Khai báo đối tượng servo
 Servo servo;
@@ -51,16 +51,16 @@ void turnright(int speed, int speed2)
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   analogWrite(ENB, speed2);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 }
 
 //Rẽ trái
 void turnleft(int speed, int speed2)
 {
   analogWrite(ENA, speed);
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
   analogWrite(ENB, speed2);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
@@ -127,18 +127,18 @@ void loop()
   {
     stop();
     delay(100);
-    long leftDistance = scanAt(0);
-    long rightDistance = scanAt(180);
+    long leftDistance = scanAt(45);
+    long rightDistance = scanAt(135);
 
     if (leftDistance > rightDistance && leftDistance > clearanceDistance)
     {
       turnleft(130, 220);
-      delayMicroseconds(2);
+      delay(400);
     }
     else if (rightDistance > leftDistance && rightDistance > clearanceDistance)
     {
       turnright(130, 220);
-      delayMicroseconds(2);
+      delay(400);
     }
     else
     {
@@ -150,6 +150,4 @@ void loop()
   {
     forward(240, 240);
   }
-  
-  forward(240, 240);
 }
