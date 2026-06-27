@@ -132,22 +132,22 @@ void loop()
 
     if (leftDistance > rightDistance && leftDistance > clearanceDistance)
     {
-      turnleft(130, 220);
+      turnleft(225, 225);
       delay(400);
     }
     else if (rightDistance > leftDistance && rightDistance > clearanceDistance)
     {
-      turnright(130, 220);
+      turnright(225, 225);
       delay(400);
     }
     else
     {
-      backward(170, 170);
+      backward(225, 225);
       delay(reverseduration);
     }
   }
   else
   {
-    forward(240, 240);
+    forward(225, 225);
   }
 }
