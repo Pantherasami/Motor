@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <stdio.h>
 #include <Servo.h>
 
 
@@ -14,6 +13,11 @@ const int ENB = 6;
 const int Trig = 13;
 const int Echo = 12;
 const int servoPin = 10;
+
+//Distance limit (cm)
+const int distanceLimit = 30;
+const int clearanceDistance = 40;
+const int reverseduration = 25600UL;
 
 //Khai báo đối tượng servo
 Servo servo;
@@ -62,7 +66,6 @@ void turnleft(int speed, int speed2)
   digitalWrite(IN4, LOW);
 }
 
-//Đo khoảng cách — trả về khoảng cách (cm)
 long getDistance()
 {
   digitalWrite(Trig, LOW);
@@ -73,6 +76,22 @@ long getDistance()
   long duration = pulseIn(Echo, HIGH);
   long dist = duration * 0.034 / 2;
   return dist;
+}
+
+void stop()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+long scanAt(int angle)
+{
+  servo.write(angle);
+  delay(400);
+  long distance = getDistance();
+  return distance;
 }
 
 void setup() {
@@ -100,40 +119,37 @@ void setup() {
 void loop() 
 {
   //Servo default position
-  servo.write(0);
+  servo.write(9);
   delay(100);
 
-  long dist = getDistance();
-  if (dist <= 20) {
-    servo.write(90);
-    delay(1000); // Wait for the servo to move
-  } else {
-    servo.write(0); // Return to default position
+  const int frontDistance = getDistance();
+  if (frontDistance < distanceLimit)
+  {
+    stop();
+    delay(100);
+    long leftDistance = scanAt(0);
+    long rightDistance = scanAt(180);
+
+    if (leftDistance > rightDistance && leftDistance > clearanceDistance)
+    {
+      turnleft(130, 220);
+      delayMicroseconds(2);
+    }
+    else if (rightDistance > leftDistance && rightDistance > clearanceDistance)
+    {
+      turnright(130, 220);
+      delayMicroseconds(2);
+    }
+    else
+    {
+      backward(170, 170);
+      delay(reverseduration);
+    }
   }
-  if (dist <= 20) {
-    // Stop the motors if an obstacle is detected
-    analogWrite(ENA, 0);
-    analogWrite(ENB, 0);
-    getDistance(); // Update distance reading
-  } else {
-    // Continue moving forward if no obstacle is detected
+  else
+  {
     forward(240, 240);
   }
-
   
-  //Forward 100%
   forward(240, 240);
-  delay(5000);
-  
-  //Backwards 60%
-  backward(153, 153);
-  delay(5000);
-
-  //turnright sharp
-  turnright(180, 150);
-  delay(5000);
-
-  //turnleft sharp
-  turnleft(150, 180);
-  delay(5000);
 }
