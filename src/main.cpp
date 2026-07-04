@@ -15,9 +15,11 @@ const int Echo = 12;
 const int servoPin = 10;
 
 //Distance limit (cm)
-const int distanceLimit = 30;
-const int clearanceDistance = 40;
-const unsigned long reverseduration = 4000; // Thời gian lùi lại (ms)
+const int distanceLimit = 30;       // Khoảng cách phát hiện vật cản
+const int clearanceDistance = 40;   // Khoảng cách tối thiểu để rẽ
+const int turnDuration = 400;       // Thời gian rẽ (ms)
+const int reverseDuration = 1000;   // Thời gian lùi (ms)
+const int scanDelay = 400;          // Thời gian chờ servo quét (ms)
 
 int pos = 0;    // variable to store the servo position
 
@@ -68,18 +70,6 @@ void turnleft(int speed, int speed2)
   digitalWrite(IN4, LOW);
 }
 
-long getDistance()
-{
-  digitalWrite(Trig, LOW);
-  delayMicroseconds(2);
-  digitalWrite(Trig, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(Trig, LOW);
-  long duration = pulseIn(Echo, HIGH);
-  long dist = duration * 0.034 / 2;
-  return dist;
-}
-
 void stop()
 {
   digitalWrite(IN1, LOW);
@@ -88,11 +78,38 @@ void stop()
   digitalWrite(IN4, LOW);
 }
 
+long getDistance()
+{
+  digitalWrite(Trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(Trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(Trig, LOW);
+  long duration = pulseIn(Echo, HIGH, 30000); // Timeout 30ms (~500cm)
+  if (duration == 0) {
+    return 999;} // if no echo received, return a large distance <=> no obstacle detected
+
+  long dist = duration * 0.034 / 2;
+  return dist;
+}
+
+
+long getDistanceAvg()
+{
+  long total = 0;
+  for (int i = 0; i < 3; i++)
+  {
+    total += getDistance();
+    delay(20);
+  }
+  return total / 3;
+}
+
 long scanAt(int angle)
 {
   servo.write(angle);
-  delay(400);
-  long distance = getDistance();
+  delay(scanDelay);
+  long distance = getDistanceAvg();
   return distance;
 }
 
@@ -128,12 +145,10 @@ void setup() {
 
 void loop() 
 {
-  //Servo default position
-  // Serial.println("Servo default position");
   servo.write(90);
   delay(100);
 
-  const int frontDistance = getDistance();
+  const int frontDistance = getDistanceAvg();
   Serial.print("Front distance: ");
   Serial.println(frontDistance);
   if (frontDistance < distanceLimit)
@@ -152,20 +167,19 @@ void loop()
     {
       turnleft(225, 225);
       Serial.println("Turning left");
-      delay(400);
+      delay(turnDuration);
     }
     else if (rightDistance > leftDistance && rightDistance > clearanceDistance)
     {
       turnright(225, 225);
       Serial.println("Turning right");
-      delay(400);
+      delay(turnDuration);
     }
     else
     {
       backward(225, 225);
       Serial.println("Moving backward");
-      delay(400);
-      delay(4000);
+      delay(reverseDuration);
     }
   }
   else
