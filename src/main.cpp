@@ -18,7 +18,7 @@ const int servoPin = 10;
 const int distanceLimit = 30;       // Khoảng cách phát hiện vật cản
 const int clearanceDistance = 40;   // Khoảng cách tối thiểu để rẽ
 const int turnDuration = 400;       // Thời gian rẽ (ms)
-const int reverseDuration = 1000;   // Thời gian lùi (ms)
+const int reverseDuration = 1500;   // Thời gian lùi (ms)
 const int scanDelay = 400;          // Thời gian chờ servo quét (ms)
 
 int pos = 0;    // variable to store the servo position
@@ -165,13 +165,13 @@ void loop()
 
     if (leftDistance > rightDistance && leftDistance > clearanceDistance)
     {
-      turnleft(225, 225);
+      turnleft(220, 225);
       Serial.println("Turning left");
       delay(turnDuration);
     }
     else if (rightDistance > leftDistance && rightDistance > clearanceDistance)
     {
-      turnright(225, 225);
+      turnright(225, 200);
       Serial.println("Turning right");
       delay(turnDuration);
     }
