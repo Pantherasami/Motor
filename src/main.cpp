@@ -70,6 +70,7 @@ void turnleft(int speed, int speed2)
   digitalWrite(IN4, LOW);
 }
 
+//Dừng
 void stop()
 {
   digitalWrite(IN1, LOW);
@@ -78,6 +79,7 @@ void stop()
   digitalWrite(IN4, LOW);
 }
 
+//Get fromt distance
 long getDistance()
 {
   digitalWrite(Trig, LOW);
@@ -93,7 +95,7 @@ long getDistance()
   return dist;
 }
 
-
+//Averaging the measurements
 long getDistanceAvg()
 {
   long total = 0;
@@ -105,6 +107,7 @@ long getDistanceAvg()
   return total / 3;
 }
 
+//Scan distance
 long scanAt(int angle)
 {
   servo.write(angle);
