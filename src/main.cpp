@@ -19,9 +19,15 @@ const int distanceLimit = 30;       // Khoảng cách phát hiện vật cản
 const int clearanceDistance = 40;   // Khoảng cách tối thiểu để rẽ
 const int turnDuration = 400;       // Thời gian rẽ (ms)
 const int reverseDuration = 1500;   // Thời gian lùi (ms)
-const int scanDelay = 400;          // Thời gian chờ servo quét (ms)
+const int scanDelay = 100;          // Thời gian chờ servo quét (ms)
 
-int pos = 0;    // variable to store the servo position
+//Made for Servo 360, changes manually
+const int servoStop = 90;
+const int servoOffset = 30;
+const int turn45Duration = 150; //(ms)
+
+
+//int pos = 0;    // variable to store the servo position
 
 //Khai báo đối tượng servo
 Servo servo;
@@ -108,14 +114,31 @@ long getDistanceAvg()
 }
 
 //Scan distance
-long scanAt(int angle)
+// long scanAt(int angle)
+// {
+//   servo.write(angle);
+//   delay(scanDelay);
+//   long distance = getDistanceAvg();
+//   return distance;
+// }
+
+//To make servo 360 spin to correct angle by timing
+void spinServo(int direction, int ms)
 {
-  servo.write(angle);
+  servo.write(servoStop + (direction * servoOffset));
+  delay(ms);
+  servo.write(servoStop);
   delay(scanDelay);
-  long distance = getDistanceAvg();
-  return distance;
 }
 
+//Changes for servo 360
+long scanAt(int direction)
+{
+  spinServo(direction, turn45Duration);
+  long distance = getDistanceAvg();
+  spinServo(-direction, turn45Duration);
+  return distance;
+}
 
 
 void setup() {
@@ -131,8 +154,9 @@ void setup() {
   pinMode(Trig, OUTPUT);
   pinMode(Echo, INPUT);
 
-
+  //Make sure servo stop right at the start
   servo.attach(servoPin);
+  servo.write(servoStop);
 
 
   //Chế độ ban đầu
@@ -148,8 +172,7 @@ void setup() {
 
 void loop() 
 {
-  servo.write(90);
-  delay(100);
+  servo.write(servoStop);
 
   const int frontDistance = getDistanceAvg();
   Serial.print("Front distance: ");
