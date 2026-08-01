@@ -182,10 +182,10 @@ void loop()
     Serial.println("Stop");
     stop();
     delay(100);
-    long leftDistance = scanAt(45);
+    long leftDistance = scanAt(-1);
     Serial.print("Left distance: ");
     Serial.println(leftDistance);
-    long rightDistance = scanAt(135);
+    long rightDistance = scanAt(1);
     Serial.print("Right distance: ");
     Serial.println(rightDistance);
 
